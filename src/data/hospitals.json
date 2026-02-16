@@ -1,0 +1,20 @@
+[
+  {
+    "id": "kaiser-permanente",
+    "name": "Kaiser Permanente",
+    "fpl_limit_percent": 350,
+    "logo_url": "/logos/kaiser.png",
+    "website": "https://www.kaiserpermanente.org",
+    "assistance_program": "Medical Financial Assistance Program",
+    "description": "Kaiser Permanente offers financial assistance to patients with household incomes at or below 350% of the Federal Poverty Level."
+  },
+  {
+    "id": "sutter-health",
+    "name": "Sutter Health",
+    "fpl_limit_percent": 400,
+    "logo_url": "/logos/sutter.png",
+    "website": "https://www.sutterhealth.org",
+    "assistance_program": "Financial Assistance / Charity Care Program",
+    "description": "Sutter Health provides financial assistance to patients with household incomes at or below 400% of the Federal Poverty Level."
+  }
+]
