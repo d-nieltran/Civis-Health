@@ -5,7 +5,7 @@ import {
   ArrowRight,
   Building2,
 } from "lucide-react";
-import EligibilityCalculator from "@/components/EligibilityCalculator";
+import EligibilityForm from "@/components/EligibilityForm";
 
 export default function Home() {
   return (
@@ -150,7 +150,7 @@ export default function Home() {
       </section>
 
       {/* Eligibility Calculator */}
-      <EligibilityCalculator />
+      <EligibilityForm />
 
       {/* Footer */}
       <footer className="bg-navy-900 border-t border-navy-800">

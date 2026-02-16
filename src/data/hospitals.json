@@ -7,7 +7,7 @@
       "type": "fpl_percentage",
       "fpl_percent": 350
     },
-    "application_pdf_url": "/forms/kaiser-fa-application.pdf",
+    "application_pdf_url": "/forms/kaiser_form.pdf",
     "pdf_field_map": {
       "patientName": "Patient Full Name",
       "dateOfBirth": "DOB",
@@ -35,7 +35,7 @@
         "8": 182000
       }
     },
-    "application_pdf_url": "/forms/sutter-fa-application.pdf",
+    "application_pdf_url": "/forms/sutter_form.pdf",
     "pdf_field_map": {
       "patientName": "pt_name",
       "dateOfBirth": "pt_dob",
