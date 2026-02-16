@@ -22,8 +22,8 @@ export default function EligibilityForm() {
     <section id="calculator" className="py-20 bg-navy-50">
       <div className="max-w-3xl mx-auto px-6">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-gold-100 rounded-xl mb-4">
-            <Calculator className="w-7 h-7 text-gold-600" />
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-accent-100 rounded-xl mb-4">
+            <Calculator className="w-7 h-7 text-accent-600" />
           </div>
           <h2 className="text-3xl font-bold text-navy-900">
             Check Your Eligibility
@@ -58,7 +58,7 @@ export default function EligibilityForm() {
                   placeholder="e.g. 35000"
                   value={income}
                   onChange={(e) => setIncome(e.target.value)}
-                  className="w-full pl-8 pr-4 py-3 border border-navy-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-400 focus:border-transparent text-navy-900 placeholder:text-navy-300"
+                  className="w-full pl-8 pr-4 py-3 border border-navy-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-400 focus:border-transparent text-navy-900 placeholder:text-navy-300"
                 />
               </div>
             </div>
@@ -73,7 +73,7 @@ export default function EligibilityForm() {
                 id="householdSize"
                 value={householdSize}
                 onChange={(e) => setHouseholdSize(e.target.value)}
-                className="w-full px-4 py-3 border border-navy-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-400 focus:border-transparent text-navy-900 bg-white"
+                className="w-full px-4 py-3 border border-navy-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-400 focus:border-transparent text-navy-900 bg-white"
               >
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
                   <option key={n} value={n}>

@@ -14,7 +14,7 @@ export default function Home() {
       <nav className="bg-navy-900 border-b border-navy-800">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className="w-7 h-7 text-gold" />
+            <Shield className="w-7 h-7 text-accent" />
             <span className="text-xl font-bold text-white tracking-tight">
               Civis Health
             </span>
@@ -34,7 +34,7 @@ export default function Home() {
             </a>
             <a
               href="#calculator"
-              className="text-sm bg-gold hover:bg-gold-500 text-navy-900 font-semibold px-4 py-2 rounded-lg transition-colors"
+              className="text-sm bg-accent hover:bg-accent-500 text-navy-900 font-semibold px-4 py-2 rounded-lg transition-colors"
             >
               Get Started
             </a>
@@ -45,24 +45,24 @@ export default function Home() {
       {/* Hero */}
       <section className="bg-navy-900 pt-20 pb-28">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <div className="inline-flex items-center gap-2 bg-navy-800 text-gold-300 text-sm font-medium px-4 py-1.5 rounded-full mb-8">
+          <div className="inline-flex items-center gap-2 bg-navy-800 text-accent-300 text-sm font-medium px-4 py-1.5 rounded-full mb-8">
             <Heart className="w-4 h-4" />
             Free &amp; Non-Profit
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
-            Hospital Bills Shouldn&apos;t
+            Financial Assistance
             <br />
-            <span className="text-gold">Break Your Family</span>
+            <span className="text-accent">Within Your Reach</span>
           </h1>
           <p className="mt-6 text-lg text-navy-300 max-w-2xl mx-auto leading-relaxed">
-            Civis Health helps patients discover financial assistance programs
-            and generate applications — completely free. You may qualify for
-            reduced or eliminated hospital bills.
+            Civis Health helps patients find hospital financial assistance
+            programs and prepare applications at no cost. You may qualify for
+            reduced or forgiven medical bills.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
               href="#calculator"
-              className="inline-flex items-center gap-2 bg-gold hover:bg-gold-500 text-navy-900 font-semibold px-8 py-3.5 rounded-lg text-lg transition-colors"
+              className="inline-flex items-center gap-2 bg-accent hover:bg-accent-500 text-navy-900 font-semibold px-8 py-3.5 rounded-lg text-lg transition-colors"
             >
               Check Your Eligibility
               <ArrowRight className="w-5 h-5" />
@@ -81,17 +81,17 @@ export default function Home() {
       <section className="bg-navy-800 border-t border-navy-700">
         <div className="max-w-4xl mx-auto px-6 py-8 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
           <div>
-            <p className="text-2xl font-bold text-gold">100%</p>
+            <p className="text-2xl font-bold text-accent">100%</p>
             <p className="text-sm text-navy-400 mt-1">Free to use, always</p>
           </div>
           <div>
-            <p className="text-2xl font-bold text-gold">$0</p>
+            <p className="text-2xl font-bold text-accent">$0</p>
             <p className="text-sm text-navy-400 mt-1">
               No hidden fees or upsells
             </p>
           </div>
           <div>
-            <p className="text-2xl font-bold text-gold">Private</p>
+            <p className="text-2xl font-bold text-accent">Private</p>
             <p className="text-sm text-navy-400 mt-1">
               Your data stays on your device
             </p>
@@ -132,10 +132,10 @@ export default function Home() {
             ].map((step) => (
               <div
                 key={step.title}
-                className="text-center p-8 rounded-2xl border border-navy-100 hover:border-gold-200 hover:shadow-md transition-all"
+                className="text-center p-8 rounded-2xl border border-navy-100 hover:border-accent-200 hover:shadow-md transition-all"
               >
                 <div className="inline-flex items-center justify-center w-14 h-14 bg-navy-900 rounded-xl mb-5">
-                  <step.icon className="w-7 h-7 text-gold" />
+                  <step.icon className="w-7 h-7 text-accent" />
                 </div>
                 <h3 className="text-lg font-semibold text-navy-900">
                   {step.title}
@@ -157,7 +157,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 py-12">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-gold" />
+              <Shield className="w-5 h-5 text-accent" />
               <span className="text-lg font-bold text-white">
                 Civis Health
               </span>

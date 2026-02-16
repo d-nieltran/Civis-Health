@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       start: { x: 50, y },
       end: { x: 562, y },
       thickness: 1,
-      color: rgb(212 / 255, 168 / 255, 67 / 255), // gold
+      color: rgb(13 / 255, 148 / 255, 136 / 255), // teal accent
     });
 
     y -= 40;

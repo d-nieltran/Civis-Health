@@ -23,7 +23,7 @@ export default function HospitalSearch({ value, onChange }: HospitalSearchProps)
         id="hospital"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-4 py-3 border border-navy-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-400 focus:border-transparent text-navy-900 bg-white"
+        className="w-full px-4 py-3 border border-navy-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-400 focus:border-transparent text-navy-900 bg-white"
       >
         <option value="" disabled>
           Select a hospital...

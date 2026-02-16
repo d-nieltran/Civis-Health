@@ -2,80 +2,61 @@
 
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { CheckCircle, XCircle } from "lucide-react";
-import hospitalsData from "@/data/hospitals.json";
+import { CheckCircle, XCircle, Download, ArrowLeft, Shield } from "lucide-react";
+import { Hospital } from "@/types/hospital";
 import { getFplPercent } from "@/utils/fpl_calculator";
+import hospitalsData from "@/data/hospitals.json";
 
-type Hospital = {
-  hospital_id: string;
-  name: string;
-  policy_name: string;
-  income_limits:
-    | { type: "fpl_percentage"; fpl_percent: number }
-    | { type: "flat"; by_household_size: Record<string, number> };
-  application_pdf_url: string;
-  pdf_field_map: Record<string, string>;
-};
+const hospitals = hospitalsData as Hospital[];
 
 function ResultContent() {
   const searchParams = useSearchParams();
-  const hospitalId = searchParams.get("hospital_id");
-  const income = searchParams.get("income");
-  const householdSize = searchParams.get("householdSize");
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
-  if (!hospitalId || !income || !householdSize) {
-    return (
-      <div className="min-h-screen bg-[#0A2540] flex items-center justify-center px-4">
-        <div className="max-w-2xl w-full bg-white rounded-lg p-8 text-center">
-          <p className="text-red-600 text-lg mb-4">Missing required information</p>
-          <a
-            href="/#calculator"
-            className="text-[#0A2540] hover:underline font-medium"
-          >
-            Go back to calculator
-          </a>
-        </div>
-      </div>
-    );
-  }
+  const hospitalId = searchParams.get("hospital_id") ?? "";
+  const income = searchParams.get("income") ?? "0";
+  const householdSize = searchParams.get("householdSize") ?? "1";
 
-  const hospitals = hospitalsData as Hospital[];
   const hospital = hospitals.find((h) => h.hospital_id === hospitalId);
+  const annualIncome = parseFloat(income);
+  const size = parseInt(householdSize);
+  const fplPercent = getFplPercent(annualIncome, size);
 
   if (!hospital) {
     return (
-      <div className="min-h-screen bg-[#0A2540] flex items-center justify-center px-4">
-        <div className="max-w-2xl w-full bg-white rounded-lg p-8 text-center">
-          <p className="text-red-600 text-lg mb-4">Hospital not found</p>
+      <div className="min-h-screen bg-navy-900 flex items-center justify-center">
+        <div className="text-center px-6">
+          <XCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-white mb-2">Hospital Not Found</h1>
+          <p className="text-navy-300 mb-8">
+            We couldn&apos;t find the hospital you selected.
+          </p>
           <a
             href="/#calculator"
-            className="text-[#0A2540] hover:underline font-medium"
+            className="inline-flex items-center gap-2 bg-accent hover:bg-accent-500 text-navy-900 font-semibold px-6 py-3 rounded-lg transition-colors"
           >
-            Go back to calculator
+            <ArrowLeft className="w-4 h-4" />
+            Start Over
           </a>
         </div>
       </div>
     );
   }
 
-  const incomeNum = Number(income);
-  const householdSizeNum = Number(householdSize);
-
-  let isEligible = false;
-  let fplPercent = 0;
+  let eligible: boolean;
+  let limitDescription: string;
 
   if (hospital.income_limits.type === "fpl_percentage") {
-    fplPercent = getFplPercent(incomeNum, householdSizeNum);
-    isEligible = fplPercent <= hospital.income_limits.fpl_percent;
-  } else if (hospital.income_limits.type === "flat") {
-    const limit = hospital.income_limits.by_household_size[String(householdSizeNum)];
-    isEligible = limit !== undefined && incomeNum <= limit;
-    fplPercent = getFplPercent(incomeNum, householdSizeNum);
+    eligible = fplPercent <= hospital.income_limits.fpl_percent;
+    limitDescription = `up to ${hospital.income_limits.fpl_percent}% of the Federal Poverty Level`;
+  } else {
+    const incomeLimit = hospital.income_limits.by_household_size[size.toString()];
+    eligible = annualIncome <= incomeLimit;
+    limitDescription = `up to $${incomeLimit?.toLocaleString()} for a household of ${size}`;
   }
 
   async function handleDownload() {
-    setIsDownloading(true);
+    setDownloading(true);
     try {
       const res = await fetch("/api/generate-pdf", {
         method: "POST",
@@ -83,15 +64,10 @@ function ResultContent() {
         body: JSON.stringify({
           patientName: "Applicant",
           hospital_id: hospitalId,
-          income: incomeNum,
-          householdSize: householdSizeNum,
+          income: annualIncome,
+          householdSize: size,
         }),
       });
-
-      if (!res.ok) {
-        throw new Error("Failed to generate PDF");
-      }
-
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -99,66 +75,97 @@ function ResultContent() {
       a.download = "civis-health-application.pdf";
       a.click();
       URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Download error:", error);
-      alert("Failed to download application. Please try again.");
     } finally {
-      setIsDownloading(false);
+      setDownloading(false);
     }
   }
 
   return (
-    <div className="min-h-screen bg-[#0A2540] flex items-center justify-center px-4 py-12">
-      <div className="max-w-2xl w-full text-center">
-        {isEligible ? (
-          <>
-            <CheckCircle className="w-20 h-20 text-green-400 mx-auto mb-6" />
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              You Qualify!
-            </h1>
-            <p className="text-xl text-white/90 mb-2">{hospital.name}</p>
-            <p className="text-lg text-white/80 mb-4">{hospital.policy_name}</p>
-            <p className="text-white/70 mb-8">
-              Your household income is at {fplPercent}% of the Federal Poverty Level
-            </p>
-            <button
-              onClick={handleDownload}
-              disabled={isDownloading}
-              className="bg-[#F7B801] text-[#0A2540] px-8 py-4 rounded-lg text-lg font-semibold hover:bg-[#F7B801]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+    <div className="min-h-screen bg-navy-900">
+      <nav className="border-b border-navy-800">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center">
+          <a href="/" className="flex items-center gap-2">
+            <Shield className="w-7 h-7 text-accent" />
+            <span className="text-xl font-bold text-white tracking-tight">
+              Civis Health
+            </span>
+          </a>
+        </div>
+      </nav>
+
+      <div className="flex items-center justify-center py-20 px-6">
+        <div className="max-w-lg w-full text-center">
+          {eligible ? (
+            <>
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-emerald-500/20 rounded-full mb-6">
+                <CheckCircle className="w-10 h-10 text-emerald-400" />
+              </div>
+              <h1 className="text-4xl font-bold text-white mb-3">
+                You Qualify!
+              </h1>
+              <p className="text-navy-300 text-lg mb-2">
+                Based on your income of{" "}
+                <span className="text-white font-semibold">
+                  ${annualIncome.toLocaleString()}
+                </span>{" "}
+                ({fplPercent}% FPL), you likely qualify for:
+              </p>
+              <div className="bg-navy-800 rounded-xl p-6 mt-6 mb-8 border border-navy-700">
+                <p className="text-xl font-bold text-white">{hospital.name}</p>
+                <p className="text-accent mt-1">{hospital.policy_name}</p>
+                <p className="text-navy-400 text-sm mt-2">
+                  Covers patients with income {limitDescription}
+                </p>
+              </div>
+              <button
+                onClick={handleDownload}
+                disabled={downloading}
+                className="inline-flex items-center gap-2 bg-accent hover:bg-accent-500 text-navy-900 font-semibold px-8 py-3.5 rounded-lg text-lg transition-colors disabled:opacity-60"
+              >
+                <Download className="w-5 h-5" />
+                {downloading ? "Generating..." : "Download Application"}
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-red-500/20 rounded-full mb-6">
+                <XCircle className="w-10 h-10 text-red-400" />
+              </div>
+              <h1 className="text-4xl font-bold text-white mb-3">
+                You May Not Qualify
+              </h1>
+              <p className="text-navy-300 text-lg mb-2">
+                Based on your income of{" "}
+                <span className="text-white font-semibold">
+                  ${annualIncome.toLocaleString()}
+                </span>{" "}
+                ({fplPercent}% FPL), you may not qualify for:
+              </p>
+              <div className="bg-navy-800 rounded-xl p-6 mt-6 mb-8 border border-navy-700">
+                <p className="text-xl font-bold text-white">{hospital.name}</p>
+                <p className="text-accent mt-1">{hospital.policy_name}</p>
+                <p className="text-navy-400 text-sm mt-2">
+                  This program covers patients with income {limitDescription}
+                </p>
+              </div>
+              <p className="text-navy-400 text-sm mb-8">
+                You may still qualify based on other factors like medical debt or
+                extraordinary circumstances. Contact the hospital directly for
+                more information.
+              </p>
+            </>
+          )}
+
+          <div className="mt-6">
+            <a
+              href="/#calculator"
+              className="inline-flex items-center gap-2 text-navy-400 hover:text-white font-medium transition-colors"
             >
-              {isDownloading ? "Generating..." : "Download Application"}
-            </button>
-            <div className="mt-6">
-              <a
-                href="/#calculator"
-                className="text-white/80 hover:text-white underline"
-              >
-                Start Over
-              </a>
-            </div>
-          </>
-        ) : (
-          <>
-            <XCircle className="w-20 h-20 text-red-400 mx-auto mb-6" />
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              You May Not Qualify
-            </h1>
-            <p className="text-xl text-white/90 mb-4">{hospital.name}</p>
-            <p className="text-lg text-white/80 mb-8">
-              Based on the information provided, your household income appears to exceed
-              the eligibility threshold for {hospital.policy_name}. However, you may still
-              apply directly with the hospital for consideration.
-            </p>
-            <div className="mt-6">
-              <a
-                href="/#calculator"
-                className="text-white/80 hover:text-white underline text-lg"
-              >
-                Try Again
-              </a>
-            </div>
-          </>
-        )}
+              <ArrowLeft className="w-4 h-4" />
+              {eligible ? "Check another hospital" : "Try Again"}
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -168,8 +175,8 @@ export default function ResultPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#0A2540] flex items-center justify-center">
-          <p className="text-white text-xl">Loading...</p>
+        <div className="min-h-screen bg-navy-900 flex items-center justify-center">
+          <p className="text-navy-400">Loading results...</p>
         </div>
       }
     >
