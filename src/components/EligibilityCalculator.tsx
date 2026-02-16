@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { Calculator, CheckCircle, XCircle, ChevronRight } from "lucide-react";
-import hospitals from "@/data/hospitals.json";
+import { Hospital } from "@/types/hospital";
+import hospitalsData from "@/data/hospitals.json";
+
+const hospitals = hospitalsData as Hospital[];
 
 // 2024 Federal Poverty Level guidelines (48 contiguous states)
 const FPL_BASE = 15060;
@@ -15,7 +18,7 @@ function getFederalPovertyLevel(householdSize: number): number {
 interface EligibilityResult {
   hospitalName: string;
   programName: string;
-  fplLimitPercent: number;
+  limitDescription: string;
   eligible: boolean;
   userFplPercent: number;
 }
@@ -33,13 +36,28 @@ export default function EligibilityCalculator() {
     const fpl = getFederalPovertyLevel(size);
     const userFplPercent = Math.round((annualIncome / fpl) * 100);
 
-    const eligibilityResults: EligibilityResult[] = hospitals.map((hospital) => ({
-      hospitalName: hospital.name,
-      programName: hospital.assistance_program,
-      fplLimitPercent: hospital.fpl_limit_percent,
-      eligible: userFplPercent <= hospital.fpl_limit_percent,
-      userFplPercent,
-    }));
+    const eligibilityResults: EligibilityResult[] = hospitals.map((hospital) => {
+      let eligible: boolean;
+      let limitDescription: string;
+
+      if (hospital.income_limits.type === "fpl_percentage") {
+        eligible = userFplPercent <= hospital.income_limits.fpl_percent;
+        limitDescription = `up to ${hospital.income_limits.fpl_percent}% FPL`;
+      } else {
+        // type === "flat"
+        const incomeLimit = hospital.income_limits.by_household_size[size.toString()];
+        eligible = annualIncome <= incomeLimit;
+        limitDescription = `up to $${incomeLimit.toLocaleString()} for household of ${size}`;
+      }
+
+      return {
+        hospitalName: hospital.name,
+        programName: hospital.policy_name,
+        limitDescription,
+        eligible,
+        userFplPercent,
+      };
+    });
 
     setResults(eligibilityResults);
   }
@@ -143,9 +161,9 @@ export default function EligibilityCalculator() {
                       {result.hospitalName}
                     </p>
                     <p className="text-sm text-navy-600">
-                      {result.programName} — covers up to{" "}
+                      {result.programName} — covers{" "}
                       <span className="font-medium">
-                        {result.fplLimitPercent}% FPL
+                        {result.limitDescription}
                       </span>
                     </p>
                     <p

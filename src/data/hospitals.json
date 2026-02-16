@@ -1,20 +1,49 @@
 [
   {
-    "id": "kaiser-permanente",
+    "hospital_id": "kaiser-permanente",
     "name": "Kaiser Permanente",
-    "fpl_limit_percent": 350,
-    "logo_url": "/logos/kaiser.png",
-    "website": "https://www.kaiserpermanente.org",
-    "assistance_program": "Medical Financial Assistance Program",
-    "description": "Kaiser Permanente offers financial assistance to patients with household incomes at or below 350% of the Federal Poverty Level."
+    "policy_name": "Medical Financial Assistance Program",
+    "income_limits": {
+      "type": "fpl_percentage",
+      "fpl_percent": 350
+    },
+    "application_pdf_url": "/forms/kaiser-fa-application.pdf",
+    "pdf_field_map": {
+      "patientName": "Patient Full Name",
+      "dateOfBirth": "DOB",
+      "ssn": "SSN",
+      "address": "Mailing Address",
+      "income": "Annual Household Income",
+      "householdSize": "Number in Household",
+      "signatureDate": "Date"
+    }
   },
   {
-    "id": "sutter-health",
+    "hospital_id": "sutter-health",
     "name": "Sutter Health",
-    "fpl_limit_percent": 400,
-    "logo_url": "/logos/sutter.png",
-    "website": "https://www.sutterhealth.org",
-    "assistance_program": "Financial Assistance / Charity Care Program",
-    "description": "Sutter Health provides financial assistance to patients with household incomes at or below 400% of the Federal Poverty Level."
+    "policy_name": "Financial Assistance / Charity Care Program",
+    "income_limits": {
+      "type": "flat",
+      "by_household_size": {
+        "1": 52500,
+        "2": 71000,
+        "3": 89500,
+        "4": 108000,
+        "5": 126500,
+        "6": 145000,
+        "7": 163500,
+        "8": 182000
+      }
+    },
+    "application_pdf_url": "/forms/sutter-fa-application.pdf",
+    "pdf_field_map": {
+      "patientName": "pt_name",
+      "dateOfBirth": "pt_dob",
+      "ssn": "pt_ssn",
+      "address": "pt_address",
+      "income": "annual_income",
+      "householdSize": "hh_size",
+      "signatureDate": "sig_date"
+    }
   }
 ]

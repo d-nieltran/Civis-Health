@@ -1,15 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { Hospital } from "@/types/hospital";
+import hospitalsData from "@/data/hospitals.json";
+
+const hospitals = hospitalsData as Hospital[];
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { patientName, hospitalName, income, householdSize } = body;
+    const { patientName, hospital_id, income, householdSize } = body;
 
-    if (!patientName || !hospitalName || income == null || !householdSize) {
+    if (!patientName || !hospital_id || income == null || !householdSize) {
       return NextResponse.json(
-        { error: "Missing required fields: patientName, hospitalName, income, householdSize" },
+        { error: "Missing required fields: patientName, hospital_id, income, householdSize" },
         { status: 400 }
+      );
+    }
+
+    const hospital = hospitals.find(h => h.hospital_id === hospital_id);
+    if (!hospital) {
+      return NextResponse.json(
+        { error: "Hospital not found" },
+        { status: 404 }
       );
     }
 
@@ -59,9 +71,11 @@ export async function POST(request: NextRequest) {
     });
     y -= 28;
 
+    // TODO: When filling actual hospital PDF forms, use hospital.pdf_field_map to map our field keys to the hospital's PDF field names
     const fields = [
       ["Patient Name", patientName],
-      ["Hospital", hospitalName],
+      ["Hospital", hospital.name],
+      ["Program", hospital.policy_name],
       ["Annual Household Income", `$${Number(income).toLocaleString()}`],
       ["Household Size", String(householdSize)],
       ["Date", new Date().toLocaleDateString("en-US")],
