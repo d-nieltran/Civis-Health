@@ -1,18 +1,16 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
-import { CheckCircle, XCircle, Download, ArrowLeft, Shield } from "lucide-react";
+import { Suspense } from "react";
+import { CheckCircle, XCircle, FileText, ArrowLeft, Shield } from "lucide-react";
 import { Hospital } from "@/types/hospital";
-import { getFplPercent } from "@/utils/fpl_calculator";
+import { getFplPercent, getKaiserWaAwardTier } from "@/utils/fpl_calculator";
 import hospitalsData from "@/data/hospitals.json";
 
-const hospitals = hospitalsData as Hospital[];
+const hospitals = hospitalsData as unknown as Hospital[];
 
 function ResultContent() {
   const searchParams = useSearchParams();
-  const [downloading, setDownloading] = useState(false);
-
   const hospitalId = searchParams.get("hospital_id") ?? "";
   const income = searchParams.get("income") ?? "0";
   const householdSize = searchParams.get("householdSize") ?? "1";
@@ -21,6 +19,9 @@ function ResultContent() {
   const annualIncome = parseFloat(income);
   const size = parseInt(householdSize);
   const fplPercent = getFplPercent(annualIncome, size);
+
+  const hasApplyPage = hospitalId === "kaiser-wa";
+  const awardTier = hospitalId === "kaiser-wa" ? getKaiserWaAwardTier(annualIncome, size) : null;
 
   if (!hospital) {
     return (
@@ -53,31 +54,6 @@ function ResultContent() {
     const incomeLimit = hospital.income_limits.by_household_size[size.toString()];
     eligible = annualIncome <= incomeLimit;
     limitDescription = `up to $${incomeLimit?.toLocaleString()} for a household of ${size}`;
-  }
-
-  async function handleDownload() {
-    setDownloading(true);
-    try {
-      const res = await fetch("/api/generate-pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          patientName: "Applicant",
-          hospital_id: hospitalId,
-          income: annualIncome,
-          householdSize: size,
-        }),
-      });
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "civis-health-application.pdf";
-      a.click();
-      URL.revokeObjectURL(url);
-    } finally {
-      setDownloading(false);
-    }
   }
 
   return (
@@ -116,15 +92,25 @@ function ResultContent() {
                 <p className="text-navy-400 text-sm mt-2">
                   Covers patients with income {limitDescription}
                 </p>
+                {awardTier !== null && awardTier > 0 && (
+                  <p className="text-emerald-400 text-sm font-semibold mt-2">
+                    Estimated {awardTier}% award
+                  </p>
+                )}
               </div>
-              <button
-                onClick={handleDownload}
-                disabled={downloading}
-                className="inline-flex items-center gap-2 bg-accent hover:bg-accent-500 text-navy-900 font-semibold px-8 py-3.5 rounded-lg text-lg transition-colors disabled:opacity-60"
-              >
-                <Download className="w-5 h-5" />
-                {downloading ? "Generating..." : "Download Application"}
-              </button>
+              {hasApplyPage ? (
+                <a
+                  href={`/apply?hospital_id=${hospitalId}&income=${income}&householdSize=${householdSize}`}
+                  className="inline-flex items-center gap-2 bg-accent hover:bg-accent-500 text-navy-900 font-semibold px-8 py-3.5 rounded-lg text-lg transition-colors"
+                >
+                  <FileText className="w-5 h-5" />
+                  Start Application
+                </a>
+              ) : (
+                <p className="text-navy-400 text-sm">
+                  Contact {hospital.name} directly to apply for financial assistance.
+                </p>
+              )}
             </>
           ) : (
             <>

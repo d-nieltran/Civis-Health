@@ -3,7 +3,7 @@
 import { Hospital } from "@/types/hospital";
 import hospitalsData from "@/data/hospitals.json";
 
-const hospitals = hospitalsData as Hospital[];
+const hospitals = hospitalsData as unknown as Hospital[];
 
 interface HospitalSearchProps {
   value: string;
